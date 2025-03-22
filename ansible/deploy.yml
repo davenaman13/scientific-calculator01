@@ -1,0 +1,28 @@
+- hosts: local
+  become: yes
+  tasks:
+    - name: Ensure Docker SDK is installed
+      pip:
+        name: docker
+        state: present
+
+    - name: Remove old Docker image (if exists)
+      community.docker.docker_image:
+        name: naman1301/scientific-calculator
+        state: absent
+
+    - name: Pull the latest Docker image (force pull)
+      community.docker.docker_image:
+        name: naman1301/scientific-calculator:latest
+        source: pull
+        force_source: yes
+        timeout: 300
+
+    - name: Remove old container (if exists)
+      community.docker.docker_container:
+        name: scientific-calculator
+        state: absent
+
+    - name: Run Docker Container
+      shell: |
+        docker run -it -d --name scientific-calculator -p 5000:8080 naman1301/scientific-calculator:latest
